@@ -1,0 +1,1 @@
+javascript: javascript: to_clipboard(); async function to_clipboard() { var xhr = new XMLHttpRequest(); xhr.open("GET", "https://raw.githubusercontent.com/explorer2x/JS_EB/main/js_START", false); xhr.send(); let str_var = xhr.responseText; console.log(str_var); await navigator.clipboard.writeText(str_var); };
