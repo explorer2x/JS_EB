@@ -1,1 +1,2 @@
-["Divorced", "Domestic Partner", "Former spouse - court ordered coverage", "Married", "Separated", "Single", "Widowed", "Legally Separated"]
+Marital status = ["Divorced", "Domestic Partner", "Former spouse - court ordered coverage", "Married", "Separated", "Single", "Widowed", "Legally Separated"]
+EN = ["Spouse", "Child", "Domestic Partner", "Ex-Spouse", "Ex-Domestic Partner", "Former Dependent", "Deceased Spouse", "Deceased Dependent", "Legal Dependent"]
