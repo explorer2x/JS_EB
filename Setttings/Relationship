@@ -1,2 +1,7 @@
 Marital status = ["Divorced", "Domestic Partner", "Former spouse - court ordered coverage", "Married", "Separated", "Single", "Widowed", "Legally Separated"]
+EASE = ['Single,Married,Divorced,Domestic Partner,Legally Separated,Widowed']
 EN = ["Spouse", "Child", "Domestic Partner", "Ex-Spouse", "Ex-Domestic Partner", "Former Dependent", "Deceased Spouse", "Deceased Dependent", "Legal Dependent"]
+EASE =["Spouse","Spouse-Ex","Child","Child-Domestic Partner","Child-Adopted","Child-Foster","Child-Grandchild","Child-Step","Child-Legal Guardian","Domestic Partner"]
+
+
+Portal_Relation = ["Spouse", "Child", "Domestic Partner", "Ex-Spouse", "Ex-Domestic Partner", "Former Dependent", "Deceased Spouse", "Deceased Dependent", "Legal Dependent", "Spouse-Ex", "Child-Domestic Partner", "Child-Adopted", "Child-Foster", "Child-Grandchild", "Child-Step", "Child-Legal Guardian"]
