@@ -1,0 +1,27 @@
+{
+	"CarrierName": "",
+	"PlanId": "",
+	"PlanName": "",
+	"BenefitCategory": "",
+	"CoverageLevel": "",
+	"CoverageStartDate": "",
+	"CoverageEndDate": "",
+	"BenefitAmount": "",
+	"EnrollmentReason": "",
+	"MonthlyPlanCost": "",
+	"EndReason": "",
+	"ChangedFields": [{
+		"PlanEnrollmentId": "",
+		"ChangeFieldId": "",
+		"ChangeFieldName": "",
+		"CurrentValue": "",
+		"PriorValue": ""
+	}],
+	"Dependents": [{
+		"DependentName": "",
+		"Relationship": "",
+		"BenefitAmount": "",
+		"CoverageStartDate": "",
+		"CoverageEndDate": ""
+	}]
+}
