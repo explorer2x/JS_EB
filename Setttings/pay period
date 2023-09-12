@@ -1,1 +1,20 @@
 ['Weekly','Monthly','Annual','Bi-weekly','Semi-monthly','Hourly'];
+
+if pay_period =='' then
+	if annual_salary !='' then
+		use  annual_salary as salary, choose pay by annual if needed
+	else if annual_salary =='' then
+		if hourly_salary!='' then
+			use  hourly_salary as salary, choose pay by hourly
+		elseif hourly_salary =='' then
+			input nothing, let team judge
+
+elseif pay_period !='' then
+	if pay_period = 'Annual' then
+		use  annual_salary as salary, choose pay by annual if needed
+	elseif pay_period = 'Bi-Weekly' then
+		use  hourly_salary*WorkingHour*10 as salary, choose pay by Bi-Weekly if needed
+	elseif pay_period = 'Monthly' then
+		use  hourly_salary*WorkingHour*20 as salary, choose pay by Monthlyif needed
+	elseif pay_period = 'Hourly' then
+		use hourly_salary as salary, choose pay by hourly if needed
