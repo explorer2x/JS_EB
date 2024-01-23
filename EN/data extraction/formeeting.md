@@ -5,21 +5,25 @@
  - JS for data validation and analyze
  - csv
 
+## Modules
 
- - JS for extraction output:wall list JSON with EE info
- - PAD sub function to convert json to excel
  - PAD sub function to extract JS code from file/online
-
+    - Input: JS file/ URL
+    - Output: JS code
+ - JS for extraction: Output: wall list JSON with EE info
+    - Input: JS code
+    - Output: JSON string in web element id= js_res
+ - PAD sub function to convert json to excel
+    - Input: JSON string extracted from website
+    - Output: excel file with EE file, ONE EE IN ONE CSV WIHT ALL WALL CARD AND EE INFO
  
 
-# Input: 
- - wall page date or all?
+# Input:
+ - CONFIG
 
 # Output: 
- - Wall list in csv or excel file?
- - EE info in ? separate file or leave in JSON for afterward processing?
+ - EE info AND Wall card in separate file for afterward processing
 
 # Config:
- - input?
+ - CONFIG
  - Output saving path
- - 
