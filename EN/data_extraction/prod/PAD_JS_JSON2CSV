@@ -1,0 +1,123 @@
+function ExecuteScript() {
+
+	function jsonToCSV(jsonData, title) {
+		if (jsonData.length === 0) {
+			return '';
+		}
+
+		const keys = Object.keys(jsonData[0]);
+		let csvRows = title ? [title] : []; // Optional title
+		csvRows.push(keys.join(',')); // CSV header
+
+		jsonData.forEach(row => {
+			const values = keys.map(key => {
+				const escaped = ('' + row[key]).replace(/"/g, '\\"');
+				return `"${escaped}"`;
+			});
+			csvRows.push(values.join(','));
+		});
+
+		return csvRows.join('\n');
+	}
+
+	function getAllKeys(jsonArray) {
+		let allKeys = new Set();
+		jsonArray.forEach(item => {
+			Object.keys(item).forEach(key => allKeys.add(key));
+		});
+		return Array.from(allKeys);
+	}
+
+	function jsonToCSVVertical(jsonData, title) {
+		if (jsonData.length === 0) {
+			return '';
+		}
+
+		let csvRows = title ? [title] : []; // Optional title
+
+		if (Array.isArray(jsonData) && jsonData.length > 0 && typeof jsonData[0] === 'object') {
+			const allKeys = getAllKeys(jsonData);
+			allKeys.forEach(key => {
+				const row = [key];
+				jsonData.forEach(item => {
+					const escapedValue = item[key] ? ('' + item[key]).replace(/"/g, '\\"') : '';
+					row.push(`"${escapedValue}"`);
+				});
+				csvRows.push(row.join(','));
+			});
+		} else {
+			for (const [key, value] of Object.entries(jsonData)) {
+				const escapedValue = ('' + value).replace(/"/g, '\\"');
+				csvRows.push(`"${key}","${escapedValue}"`);
+			}
+		}
+
+		return csvRows.join('\n');
+	}
+
+	function downloadCSV(csvString, filename) {
+		const blob = new Blob([csvString], {
+			type: 'text/csv'
+		});
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.setAttribute('hidden', '');
+		a.setAttribute('href', url);
+		a.setAttribute('download', filename);
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	}
+
+
+	const res_el = document.getElementById("myres");
+	const jsvar = res_el.value;
+	const jsonData = JSON.parse(jsvar);
+	let employeeCSVs = [];
+
+	jsonData.forEach(employee => {
+		Object.keys(employee).forEach(empId => {
+			let combinedCSV = '';
+
+			// Process Wall section first in vertical format
+			if (employee[empId].Wall) {
+				const wallData = jsonToCSVVertical(employee[empId].Wall, 'Section: Wall');
+				combinedCSV += wallData + '\n\n';
+			}
+
+			// Then process other sections in vertical format
+			Object.keys(employee[empId]).forEach(sectionKey => {
+				if (sectionKey !== 'Wall') {
+					const sectionData = employee[empId][sectionKey];
+					sectionData.forEach(data => {
+						Object.keys(data).forEach(key => {
+							const csvData = jsonToCSVVertical(data[key], `Section: ${key}`);
+							combinedCSV += csvData + '\n\n';
+						});
+					});
+				}
+			});
+
+			if (combinedCSV) {
+				employeeCSVs.push({
+					empId: empId,
+					csvContent: combinedCSV
+				});
+
+			}
+		});
+	}); // Assuming employeeCSVs is your array of objects containing empId and csvContent
+
+	const textarea = document.createElement('textarea');
+	textarea.id = "mycsv";
+
+	// Convert the array to a JSON string
+	let jsonString = JSON.stringify(employeeCSVs, null, 2); // Pretty print with 2-space indentation
+
+	textarea.value = jsonString;
+	document.body.appendChild(textarea);
+
+	var sameElement = document.getElementById("mycsv");
+	console.log(sameElement);
+	console.log("Length of textContent:", sameElement.value.length);
+}

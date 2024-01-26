@@ -1,0 +1,214 @@
+javascript: function delay(n) {
+	return new Promise(function(resolve) {
+		setTimeout(resolve, n * delay_second * 1000);
+	});
+}
+async function get_client_id_list(fetch_url, feed_id) {
+	await delay(5);
+	const data = feed_id;
+	try {
+		const response = await fetch(fetch_url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8',
+				'Accept': 'application/json, text/javascript, */*; q=0.01',
+				'Entoken': token
+			},
+			body: data
+		});
+		const responseData = await response.json();
+		return (responseData);
+	} catch (error) {
+		console.error('Error:', error);
+	}
+}
+async function main_job() {
+	var ee_ids = [];
+	var ee_col = {};
+	var ct = 0;
+	var incomplet = await get_client_id_list(incomp_url, 0);
+	for (o = 0; o < incomplet.length; o++) {
+		if (incomplet[o].InitialIncompleteItems != 0) {
+			var BrokerClientId = incomplet[o].BrokerClientId;
+			var client_detail = await get_client_id_list(broker_wall_url, BrokerClientId);
+			var broker_wall_events = client_detail.WallModel.Events;
+			var res = [];
+			for (p = 0; p < broker_wall_events.length; p++) {
+				var client_id = broker_wall_events[p].ClientId;
+				var broker_id = broker_wall_events[p].BrokerId;
+				var emp_ID = broker_wall_events[p].EmpId;
+				if (!ee_ids.includes(emp_ID)) {
+					ee_ids.push(emp_ID);
+					if (ct == 0) {
+						var change_ee_data = '{"s":"' + emp_ID + ',' + client_id + ',' + broker_id + '"}';
+						var change_ee_res = await change_ee(change_ee_data);
+						ct = ct + 1;
+					}
+					var ee_info = await get_ee_job(emp_ID);
+				} else {
+					var ee_info = [];
+				}
+				const result = {
+					ClientName: broker_wall_events[p].ClientName,
+					CreatedDate: broker_wall_events[p].CreatedDate,
+					Reason: broker_wall_events[p].Reason,
+					EmpId: broker_wall_events[p].EmpId,
+					Feed: broker_wall_events[p].Feed,
+					EmployeeName: broker_wall_events[p].EmployeeName,
+				};
+				if (!(emp_ID in ee_col)) {
+					var temp_c = {};
+					var temp_res = [];
+					temp_c['EEINFO'] = ee_info;
+					temp_res.push(result);
+					temp_c['Wall'] = temp_res;
+					ee_col[emp_ID] = temp_c;
+					console.log(ee_col);
+				} else {
+					ee_col[emp_ID]['Wall'].push(result);
+				}
+			}
+		}
+		await delay(2);
+	}
+	const textContent = '[' + JSON.stringify(ee_col) + ']';
+	const textarea = document.createElement('textarea');
+	textarea.id = "myres";
+	textarea.value = textContent;
+	document.body.appendChild(textarea);
+	var sameElement = document.getElementById("myres");
+	console.log(sameElement);
+	console.log("Length of textContent:", sameElement.value.length);
+}
+async function get_call(url, uid) {
+	await delay(1);
+	console.log('now fetching ' + url);
+	try {
+		var response = await fetch(url, {
+			headers: {
+				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+				'Referer': 'https://' + document.domain + '/benefits/Hris/Employee/Manage?empId=' + uid
+			}
+		});
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		console.log('fetch finished');
+		return await response.text();
+	} catch (error) {
+		console.error('There was a problem with the fetch operation:', error);
+	}
+}
+
+function parse_datasheet(html) {
+	var parser = new DOMParser();
+	var doc = parser.parseFromString(html, 'text/html');
+	var scripts = Array.from(doc.querySelectorAll('script'));
+	var scriptTag = scripts.find(script => script.textContent.includes('var model = {'));
+	var eventsData;
+	var scriptContent = scriptTag.textContent;
+	var eventsRegex = /model = \s*([\s\S]*?\;)/;
+	var matches = eventsRegex.exec(scriptContent);
+	if (matches && matches[1]) {
+		if (matches[1].endsWith(";")) {
+			modifiedString = matches[1].slice(0, -1);
+		} else {
+			modifiedString = matches[1];
+		}
+		eventsData = JSON.parse(modifiedString);
+	}
+	return eventsData
+}
+async function change_ee(post_data) {
+	var fetch_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeEmployeePostJson'
+	await delay(5);
+	try {
+		const response = await fetch(fetch_url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8',
+				'Accept': 'application/json, text/javascript, */*; q=0.01',
+				'Entoken': token
+			},
+			body: post_data
+		});
+		const responseData = await response.text();
+		return (responseData);
+	} catch (error) {
+		console.error('Error:', error);
+	}
+}
+async function get_datasheet(ee_id) {
+	const html_var = await get_call('https://' + document.domain + '/benefits/Hris/Employee/DataSheet?empId=' + ee_id, ee_id);
+	const eventsData = parse_datasheet(html_var);
+	return await eventsData;
+}
+async function change_group(g_id) {
+	var group_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeClient';
+	await delay(2);
+	const data = g_id;
+	try {
+		const response = await fetch(group_url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				'Accept': 'application/json, text/javascript, */*; q=0.01',
+				'Entoken': token,
+				'Referer': 'https://' + document.domain + '/benefits/Brokers/',
+			},
+			body: data
+		});
+		const responseData = await response.json();
+		return true;
+	} catch (error) {
+		return false;
+		console.error('Error:', error);
+	}
+}
+async function get_ee_job(ee_id) {
+	const ee_res = [];
+	var datasheet = await get_datasheet(ee_id);
+	var ee_depts = [];
+	var ee_info = [];
+	var ee_address = [];
+	if (datasheet) {
+		if (datasheet.EmployeeData && datasheet.EmployeeData.Table) {
+			var ee_info = datasheet.EmployeeData.Table;
+		}
+		if (datasheet.Dependents && datasheet.Dependents.Table) {
+			var ee_depts = datasheet.Dependents.Table;
+		}
+		if (datasheet.EmployeeAddresses && datasheet.EmployeeAddresses.Table) {
+			var ee_address = datasheet.EmployeeAddresses.Table;
+		}
+	} else {
+		console.error("Datasheet data not found");
+	}
+	const result = {
+		EE_INFO: ee_info,
+		EE_DEPT: ee_depts,
+		EE_ADDRESS: ee_address,
+	};
+	ee_res.push(result);
+	return ee_res
+}
+async function job() {
+	await main_job();
+};
+const processeditem = [];
+var get_client_url = 'https://' + document.domain + '/benefits/Brokers/Wall/GetIncompleteClientItems';
+var broker_wall_url = 'https://' + document.domain + '/benefits/Brokers/Wall/BrokerWall';
+var incomp_url = 'https://' + document.domain + '/benefits/Brokers/Wall/GetIncompleteClientItems';
+var scriptTags = document.getElementsByTagName('script');
+var token = null;
+var tokenRegex = /var token = '([A-F0-9]+)';/;
+for (var i = 0; i < scriptTags.length; i++) {
+	var scriptContent = scriptTags[i].textContent || scriptTags[i].innerHTML;
+	var match = tokenRegex.exec(scriptContent);
+	if (match) {
+		token = match[1];
+		break;
+	}
+}
+var delay_second = 0.5;
+job()
