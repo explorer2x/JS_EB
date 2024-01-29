@@ -12,7 +12,8 @@ async function get_client_id_list(fetch_url, feed_id) {
 			headers: {
 				'Content-Type': 'application/json; charset=utf-8',
 				'Accept': 'application/json, text/javascript, */*; q=0.01',
-				'Entoken': token
+				'Entoken': token,
+				'Referer': 'https://' + document.domain + '/benefits/Brokers/Wall/'
 			},
 			body: data
 		});
@@ -30,8 +31,11 @@ async function main_job() {
 	for (o = 0; o < incomplet.length; o++) {
 		if (incomplet[o].InitialIncompleteItems != 0) {
 			var BrokerClientId = incomplet[o].BrokerClientId;
-			var client_detail = await get_client_id_list(broker_wall_url, BrokerClientId);
-			var broker_wall_events = client_detail.WallModel.Events;
+			
+			await prepare_brokerwall();
+			
+			var Wall_detail = await get_client_id_list(broker_wall_url, BrokerClientId);
+			var broker_wall_events = Wall_detail.WallModel.Events;
 			var res = [];
 			for (p = 0; p < broker_wall_events.length; p++) {
 				var client_id = broker_wall_events[p].ClientId;
@@ -80,6 +84,34 @@ async function main_job() {
 	console.log(sameElement);
 	console.log("Length of textContent:", sameElement.value.length);
 }
+
+async function prepare_brokerwall(){
+    
+    var GetRecentCompanies_url = 'https://' + document.domain + '/benefits/Ai/GetRecentCompanies';
+    var GenerateToken_url = 'https://' + document.domain + '/benefits/Resources/GenerateToken';
+    let recentCompany = await geturl(GetRecentCompanies_url);
+    let GenerateToken = await geturl(GenerateToken_url);
+    
+}
+async function geturl(url) {
+	await delay(1);
+	console.log('now fetching ' + url);
+	try {
+		var response = await fetch(url, {
+			headers: {
+				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+			}
+		});
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+		console.log('fetch finished');
+		return await response.text();
+	} catch (error) {
+		console.error('There was a problem with the fetch operation:', error);
+	}
+}
+
 async function get_call(url, uid) {
 	await delay(1);
 	console.log('now fetching ' + url);
