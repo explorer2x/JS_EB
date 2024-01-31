@@ -11,3 +11,25 @@ try {
 
 
 %chrome_loc% --enable-features=SaveFileDialogStartOnPathPicked
+
+
+
+try {
+    # Try to get Chrome's installation path from the registry
+    $chromePath = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe').'(Default)'
+    
+    # Check if the path was successfully retrieved and exists
+    if ($chromePath -and (Test-Path $chromePath)) {
+        # Build the command to launch Chrome with the setting to ask where to save each download
+        $args = "--enable-features=SaveFileDialogStartOnPathPicked"
+        
+        # Start Chrome with the specified feature enabled
+        Start-Process $chromePath -ArgumentList $args
+        
+        Write-Output "Chrome has been started with the specified feature."
+    } else {
+        Write-Output "Chrome not found in the expected registry path."
+    }
+} catch {
+    Write-Output "Error: $_"
+}
