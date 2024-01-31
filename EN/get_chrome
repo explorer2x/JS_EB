@@ -8,3 +8,6 @@ try {
 } catch {
     Write-Output "Error: $_"
 }
+
+
+%chrome_loc% --enable-features=SaveFileDialogStartOnPathPicked
