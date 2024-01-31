@@ -26,15 +26,15 @@ async function get_client_id_list(fetch_url, feed_id) {
 async function main_job() {
 	var ee_ids = [];
 	var ee_col = {};
-	var ct = 0;
+
 	var incomplet = await get_client_id_list(incomp_url, 0);
 	for (o = 0; o < incomplet.length; o++) {
+		var ct = 0;
 		if (incomplet[o].InitialIncompleteItems != 0) {
+
 			var BrokerClientId = incomplet[o].BrokerClientId;
-			
-			await prepare_brokerwall();
-			
 			var Wall_detail = await get_client_id_list(broker_wall_url, BrokerClientId);
+
 			var broker_wall_events = Wall_detail.WallModel.Events;
 			var res = [];
 			for (p = 0; p < broker_wall_events.length; p++) {
@@ -44,8 +44,12 @@ async function main_job() {
 				if (!ee_ids.includes(emp_ID)) {
 					ee_ids.push(emp_ID);
 					if (ct == 0) {
-						var change_ee_data = '{"s":"' + emp_ID + ',' + client_id + ',' + broker_id + '"}';
-						var change_ee_res = await change_ee(change_ee_data);
+						await get_client_id_list(incomp_url, 0);
+						var ChangeClientPostJson_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeClientPostJson';
+						var data = {
+							"s": `${client_id},${broker_id}`
+						};
+						await change_company(ChangeClientPostJson_url, data)
 						ct = ct + 1;
 					}
 					var ee_info = await get_ee_job(emp_ID);
@@ -85,30 +89,23 @@ async function main_job() {
 	console.log("Length of textContent:", sameElement.value.length);
 }
 
-async function prepare_brokerwall(){
-    
-    var GetRecentCompanies_url = 'https://' + document.domain + '/benefits/Ai/GetRecentCompanies';
-    var GenerateToken_url = 'https://' + document.domain + '/benefits/Resources/GenerateToken';
-    let recentCompany = await geturl(GetRecentCompanies_url);
-    let GenerateToken = await geturl(GenerateToken_url);
-    
-}
-async function geturl(url) {
-	await delay(1);
-	console.log('now fetching ' + url);
+async function change_company(url, data) {
+	console.log(token);
+	await delay(5);
 	try {
-		var response = await fetch(url, {
+		const response = await fetch(url, {
+			method: 'POST',
 			headers: {
-				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-			}
+				'Accept': "application/json, text/javascript, */*; q=0.01",
+				'Content-Type': 'application/json',
+				'Entoken': token
+			},
+			body: JSON.stringify(data)
 		});
-		if (!response.ok) {
-			throw new Error('Network response was not ok');
-		}
-		console.log('fetch finished');
-		return await response.text();
+		const responseData = await response.text();
+		return (responseData);
 	} catch (error) {
-		console.error('There was a problem with the fetch operation:', error);
+		console.error('Error:', error);
 	}
 }
 
@@ -151,52 +148,13 @@ function parse_datasheet(html) {
 	}
 	return eventsData
 }
-async function change_ee(post_data) {
-	var fetch_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeEmployeePostJson'
-	await delay(5);
-	try {
-		const response = await fetch(fetch_url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json; charset=utf-8',
-				'Accept': 'application/json, text/javascript, */*; q=0.01',
-				'Entoken': token
-			},
-			body: post_data
-		});
-		const responseData = await response.text();
-		return (responseData);
-	} catch (error) {
-		console.error('Error:', error);
-	}
-}
+
 async function get_datasheet(ee_id) {
 	const html_var = await get_call('https://' + document.domain + '/benefits/Hris/Employee/DataSheet?empId=' + ee_id, ee_id);
 	const eventsData = parse_datasheet(html_var);
 	return await eventsData;
 }
-async function change_group(g_id) {
-	var group_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeClient';
-	await delay(2);
-	const data = g_id;
-	try {
-		const response = await fetch(group_url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				'Accept': 'application/json, text/javascript, */*; q=0.01',
-				'Entoken': token,
-				'Referer': 'https://' + document.domain + '/benefits/Brokers/',
-			},
-			body: data
-		});
-		const responseData = await response.json();
-		return true;
-	} catch (error) {
-		return false;
-		console.error('Error:', error);
-	}
-}
+
 async function get_ee_job(ee_id) {
 	const ee_res = [];
 	var datasheet = await get_datasheet(ee_id);
