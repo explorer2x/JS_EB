@@ -1,0 +1,10 @@
+try {
+    $path = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe'
+    if ($path -ne $null) {
+        Write-Output "$($path.'(Default)')"
+    } else {
+        Write-Output "Chrome not found in the expected registry path."
+    }
+} catch {
+    Write-Output "Error: $_"
+}
