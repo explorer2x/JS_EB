@@ -1,85 +1,93 @@
-var scriptTags = document.getElementsByTagName('script');
-var token = null;
-var tokenRegex = /var token = '([A-F0-9]+)';/;
-for (var i = 0; i < scriptTags.length; i++) {
-	var scriptContent = scriptTags[i].textContent || scriptTags[i].innerHTML;
-	var match = tokenRegex.exec(scriptContent);
-	if (match) {
-		token = match[1];
-		break;
-	}
-}
-var ver_token = document.querySelector("input[name='__RequestVerificationToken']").value;
-var form_date = "12/30/2023";
-
-let keyValuePairs = [];
-
-
-keyValuePairs.push(['ENToken', token]);
-keyValuePairs.push(['EventReportId', '']);
-
-
-
-
-var lists = document.querySelector("#fields-body").querySelectorAll('ul');
-
-lists.forEach((list, listIndex) => {
-    var listItems = list.querySelectorAll('li'); // Assuming you want to iterate over 'li' elements
-
-    listItems.forEach((li, index) => {
-        var li_type = li.querySelector('label').getAttribute('for').split('[')[0];
-        var isSelected = li.querySelector("input[type='checkbox']").checked;
-        var id = li.querySelector(`input[name='${li_type}[${index}].Id']`).value;
-        var name = li.querySelector(`input[name='${li_type}[${index}].Name']`).value;
-
-        keyValuePairs.push([`${li_type}[${index}].IsSelected`, isSelected]);
-        keyValuePairs.push([`${li_type}[${index}].Id`, id]);
-        keyValuePairs.push([`${li_type}[${index}].Name`, name]);
-    });
-});
-
-
-
-
-
-keyValuePairs.push(['EventReportDate', form_date]);
-keyValuePairs.push(['__RequestVerificationToken', ver_token]);
-
-
-console.log(keyValuePairs.map(pair => pair.join(': ')).join('\n'));
-
-function delay(n) {
-	return new Promise(function(resolve) {
-		setTimeout(resolve, n * 1000);
-	});
-}
-
-async function get_client_id_list(keyValuePairs) {
-	await delay(5);
-	var fetch_url = 'https://' + document.domain + '/benefits/Company/Reports/EventReport/Csv';
-	console.log(token);
-	try {
-		const params = new URLSearchParams(keyValuePairs);
-
-		const response = await fetch(fetch_url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-			},
-			body: params
+function ExecuteScript() {
+	function delay(n) {
+		return new Promise(function(resolve) {
+			setTimeout(resolve, n * 1000);
 		});
-		const responseData = await response.text();
-		return responseData;
-	} catch (error) {
-		console.error('Error:', error);
 	}
-}
 
-// Using the async function correctly
-async function logClientIDList() {
-	var clientIDList = await get_client_id_list(keyValuePairs);
-	console.log(clientIDList);
-}
+	async function EventReportCsv(form_date) {
 
-logClientIDList();
+		var scriptTags = document.getElementsByTagName('script');
+		var token = null;
+		var tokenRegex = /var token = '([A-F0-9]+)';/;
+		for (var i = 0; i < scriptTags.length; i++) {
+			var scriptContent = scriptTags[i].textContent || scriptTags[i].innerHTML;
+			var match = tokenRegex.exec(scriptContent);
+			if (match) {
+				token = match[1];
+				break;
+			}
+		}
+		var ver_token = document.querySelector("input[name='__RequestVerificationToken']").value;
+
+
+		let keyValuePairs = [];
+
+
+		keyValuePairs.push(['ENToken', token]);
+		keyValuePairs.push(['EventReportId', '']);
+
+
+		var lists = document.querySelector("#fields-body").querySelectorAll('ul');
+
+		lists.forEach((list, listIndex) => {
+			var listItems = list.querySelectorAll('li'); 
+
+			listItems.forEach((li, index) => {
+				var li_type = li.querySelector('label').getAttribute('for').split('[')[0];
+				var isSelected = li.querySelector("input[type='checkbox']").checked;
+				var id = li.querySelector(`input[name='${li_type}[${index}].Id']`).value;
+				var name = li.querySelector(`input[name='${li_type}[${index}].Name']`).value;
+
+				keyValuePairs.push([`${li_type}[${index}].IsSelected`, isSelected]);
+				keyValuePairs.push([`${li_type}[${index}].Id`, id]);
+				keyValuePairs.push([`${li_type}[${index}].Name`, name]);
+			});
+		});
+
+		keyValuePairs.push(['EventReportDate', form_date]);
+		keyValuePairs.push(['__RequestVerificationToken', ver_token]);
+
+
+		//console.log(keyValuePairs.map(pair => pair.join(': ')).join('\n'));
+
+
+		await delay(5);
+		var fetch_url = 'https://' + document.domain + '/benefits/Company/Reports/EventReport/Csv';
+		console.log(token);
+		try {
+			const params = new URLSearchParams(keyValuePairs);
+
+			const response = await fetch(fetch_url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+				},
+				body: params
+			});
+			const responseData = await response.text();
+			return responseData;
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
+
+
+	async function Job() {
+		var form_date = "12/30/2023";
+		var csv_str = await EventReportCsv(form_date);
+		console.log(csv_str);
+		console.log(csv_str);
+
+		const textarea = document.createElement('textarea');
+		textarea.id = "mycsv";
+		textarea.value = csv_str;
+		document.body.appendChild(textarea);
+		var csvstrElement = document.getElementById("mycsv");
+		console.log(csvstrElement);
+		console.log("Length of textContent:", csvstrElement.value.length);
+	}
+
+	Job();
+}
