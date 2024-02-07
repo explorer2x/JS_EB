@@ -155,38 +155,9 @@ async function get_datasheet(ee_id) {
 	return await eventsData;
 }
 
-
-
-function parse_timeline(html) {
-	var parser = new DOMParser();
-	var doc = parser.parseFromString(html, 'text/html');
-	var scriptTags = doc.querySelectorAll('script[type="text/javascript"]');
-	var eventsData;
-	for (var i = 0; i < scriptTags.length; i++) {
-		var scriptContent = scriptTags[i].textContent;
-		var eventsRegex = /events:\s*([\s\S]*?\}\]),/;
-		var matches = eventsRegex.exec(scriptContent);
-
-		if (matches && matches[1]) {
-			eventsData = JSON.parse(matches[1]);
-			break;
-		}
-	}
-	return eventsData
-}
-
-async function get_timeline(ee_id) {
-	const html_var = await get_call('https://' + document.domain + '/benefits/Hris/Employee/Timeline?empId=' + ee_id);
-	const eventsData = parse_timeline(html_var);
-	return await eventsData;
-}
-
-
 async function get_ee_job(ee_id) {
 	const ee_res = [];
 	var datasheet = await get_datasheet(ee_id);
-	var timeline = await get_timeline(ee_id);
-	
 	var ee_depts = [];
 	var ee_info = [];
 	var ee_address = [];
@@ -207,7 +178,6 @@ async function get_ee_job(ee_id) {
 		EE_INFO: ee_info,
 		EE_DEPT: ee_depts,
 		EE_ADDRESS: ee_address,
-		EE_TIMELINE: timeline
 	};
 	ee_res.push(result);
 	return ee_res
