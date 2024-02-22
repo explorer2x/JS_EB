@@ -41,6 +41,7 @@ async function get_event(ClientId,FromDate,ToDate) {
 		"pagination": {}
 	}
 	try {
+	    console.log()
 		const response = await fetch(fetch_url, {
 			method: 'POST',
 			headers: {
@@ -61,9 +62,10 @@ async function get_event(ClientId,FromDate,ToDate) {
 async function main_job() {
 	var ee_ids = [];
 	var ee_col = {};
+	var walls = [];
     var FromDate = '02/10/2024';
     var ToDate = '02/20/2024';
-
+    
 	var incomplet = await get_client_id_list(incomp_url, 0);
 	for (o = 0; o < incomplet.length; o++) {
 		var ct = 0;
@@ -73,51 +75,59 @@ async function main_job() {
 			var ClientId = incomplet[o].ClientId;
 			
 			var Wall_detail = await get_event(ClientId, FromDate,ToDate);
-			
+
 			var broker_wall_events = Wall_detail.Directives.Listings;
-			var res = [];
-			for (p = 0; p < broker_wall_events.length; p++) {
-				var client_id = broker_wall_events[p].ClientId;
-				var broker_id = broker_wall_events[p].BrokerId;
-				var emp_ID = broker_wall_events[p].EmpId;
-				if (!ee_ids.includes(emp_ID)) {
-					ee_ids.push(emp_ID);
-					if (ct == 0) {
-						await get_client_id_list(incomp_url, 0);
-						var ChangeClientPostJson_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeClientPostJson';
-						var data = {
-							"s": `${client_id},${broker_id}`
-						};
-						await change_company(ChangeClientPostJson_url, data)
-						ct = ct + 1;
-					}
-					var ee_info = await get_ee_job(emp_ID);
-				} else {
-					var ee_info = [];
-				}
-				const result = {
-					ClientName: broker_wall_events[p].ClientName,
-					CreatedDate: broker_wall_events[p].CreatedDate,
-					Reason: broker_wall_events[p].Reason,
-					EmpId: broker_wall_events[p].EmpId,
-					Feed: broker_wall_events[p].Feed,
-					EmployeeName: broker_wall_events[p].EmployeeName,
-				};
-				if (!(emp_ID in ee_col)) {
-					var temp_c = {};
-					var temp_res = [];
-					temp_c['EEINFO'] = ee_info;
-					temp_res.push(result);
-					temp_c['Wall'] = temp_res;
-					ee_col[emp_ID] = temp_c;
-					console.log(ee_col);
-				} else {
-					ee_col[emp_ID]['Wall'].push(result);
-				}
-			}
+			walls.push(broker_wall_events);
 		}
 		await delay(2);
 	}
+	
+	
+	console.log(walls);
+	
+	for (o = 0; o < walls.length; o++) {
+	    var broker_wall_events = walls[o];
+    	var res = [];
+    	for (p = 0; p < broker_wall_events.length; p++) {
+    		var client_id = broker_wall_events[p].ClientId;
+    		var broker_id = broker_wall_events[p].BrokerId;
+    		var emp_ID = broker_wall_events[p].EmpId;
+    		if (!ee_ids.includes(emp_ID)) {
+    			ee_ids.push(emp_ID);
+    			if (ct == 0) {
+    				var ChangeClientPostJson_url = 'https://' + document.domain + '/benefits/Brokers/Session/ChangeClientPostJson';
+    				var data = {
+    					"s": `${client_id},${broker_id}`
+    				};
+    				await change_company(ChangeClientPostJson_url, data)
+    				ct = ct + 1;
+    			}
+    			var ee_info = await get_ee_job(emp_ID);
+    		} else {
+    			var ee_info = [];
+    		}
+    		const result = {
+    			ClientName: broker_wall_events[p].ClientName,
+    			CreatedDate: broker_wall_events[p].CreatedDate,
+    			Reason: broker_wall_events[p].Reason,
+    			EmpId: broker_wall_events[p].EmpId,
+    			Feed: broker_wall_events[p].Feed,
+    			EmployeeName: broker_wall_events[p].EmployeeName,
+    		};
+    		if (!(emp_ID in ee_col)) {
+    			var temp_c = {};
+    			var temp_res = [];
+    			temp_c['EEINFO'] = ee_info;
+    			temp_res.push(result);
+    			temp_c['Wall'] = temp_res;
+    			ee_col[emp_ID] = temp_c;
+    		} else {
+    			ee_col[emp_ID]['Wall'].push(result);
+    		}
+    	}
+	
+	}
+	
 	const textContent = '[' + JSON.stringify(ee_col) + ']';
 	const textarea = document.createElement('textarea');
 	textarea.id = "myres";
