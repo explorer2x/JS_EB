@@ -272,7 +272,8 @@ for (var i = 0; i < scriptTags.length; i++) {
 }
 var delay_second = 0.5;
 
-var FromDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+var daysAgo = 5;
+var FromDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
 var ToDate = new Date().toLocaleDateString('en-US');
 
 job()
