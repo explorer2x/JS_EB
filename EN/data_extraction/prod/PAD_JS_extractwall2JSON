@@ -38,7 +38,7 @@ async function get_event(ClientId, FromDate, ToDate) {
 	}
 }
 async function get_client_id_list(fetch_url, feed_id) {
-	await delay(5);
+	await delay(1);
 	const data = feed_id;
 	try {
 		const response = await fetch(fetch_url, {
@@ -60,11 +60,11 @@ async function get_client_id_list(fetch_url, feed_id) {
 
 
 async function ChangeClient(url, data) {
-	await delay(5);
+	await delay(1);
 	try {
 		await fetch('https://' + document.domain + '/benefits/Resources/GenerateToken')
 		await fetch('https://' + document.domain + '/benefits/brokers/')
-
+		await delay(2);
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -100,7 +100,7 @@ async function main_job() {
 			var broker_wall_events = Wall_detail.Directives.Listings;
 			walls.push(broker_wall_events);
 		}
-		await delay(2);
+		await delay(1);
 	}
 
 
@@ -159,8 +159,7 @@ async function main_job() {
 }
 
 async function change_company(url, data) {
-	console.log(token);
-	await delay(5);
+	await delay(1);
 	try {
 		const response = await fetch(url, {
 			method: 'POST',
