@@ -1,0 +1,64 @@
+javascript: function delay(n) {
+	return new Promise(function(resolve) {
+		setTimeout(resolve, n * delay_second * 1000);
+	});
+}
+
+async function get_client_id_list(fetch_url, feed_id) {
+	await delay(5);
+	const data = feed_id;
+	try {
+		const response = await fetch(fetch_url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json; charset=utf-8',
+				'Accept': 'application/json, text/javascript, */*; q=0.01',
+				'Entoken': token,
+				'Referer': 'https://' + document.domain + '/benefits/Brokers/Wall/'
+			},
+			body: data
+		});
+		const responseData = await response.json();
+		return (responseData);
+	} catch (error) {
+		console.error('Error:', error);
+	}
+}
+
+
+
+async function main_job() {
+    var comp_ct = 0
+    var incomp_url = 'https://' + document.domain + '/benefits/Brokers/Wall/GetIncompleteClientItems';
+	var incomplet = await get_client_id_list(incomp_url, 0);
+	for (o = 0; o < incomplet.length; o++) {
+		if (incomplet[o].InitialIncompleteItems != 0) {
+			comp_ct = comp_ct+1;
+		}
+	}
+	const textarea = document.createElement('textarea');
+	textarea.id = "comp_ct";
+	textarea.value = comp_ct;
+	document.body.appendChild(textarea);
+}
+
+async function job() {
+	await main_job()
+
+};
+
+
+var scriptTags = document.getElementsByTagName('script');
+var token = null;
+var tokenRegex = /var token = '([A-F0-9]+)';/;
+for (var i = 0; i < scriptTags.length; i++) {
+	var scriptContent = scriptTags[i].textContent || scriptTags[i].innerHTML;
+	var match = tokenRegex.exec(scriptContent);
+	if (match) {
+		token = match[1];
+		break;
+	}
+}
+var delay_second = 0.5;
+
+job()
