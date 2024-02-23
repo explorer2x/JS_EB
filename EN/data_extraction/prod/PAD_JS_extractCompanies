@@ -5,7 +5,6 @@ javascript: function delay(n) {
 }
 
 async function get_client_id_list(fetch_url, feed_id) {
-	await delay(5);
 	const data = feed_id;
 	try {
 		const response = await fetch(fetch_url, {
