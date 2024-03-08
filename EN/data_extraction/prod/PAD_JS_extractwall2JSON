@@ -223,9 +223,83 @@ async function get_datasheet(ee_id) {
 	return await eventsData;
 }
 
+
+
+function parse_phone_htmldata(html) {
+	var parser = new DOMParser();
+	var doc = parser.parseFromString(html, 'text/html');
+
+	const tableRows = doc.querySelectorAll(".table.table-striped tbody .en-list-item");
+
+	let work_phone = "",
+		personal_phone = "";
+
+	Array.from(tableRows).forEach(row => {
+		const typeCell = row.querySelector("td:nth-child(2)");
+		const numberCell = row.querySelector("td:nth-child(3)");
+
+		const type = typeCell ? typeCell.textContent.trim().toLowerCase() : "";
+		const number = numberCell ? numberCell.textContent.trim() : "";
+
+		if (type.includes("work")) {
+			work_phone = number;
+		} else if (type.includes("personal")) {
+			personal_phone = number;
+		}
+
+	});
+
+	return {
+		work_phone,
+		personal_phone
+	};
+}
+
+
+
+function parse_email_htmldata(html) {
+	var parser = new DOMParser();
+	var doc = parser.parseFromString(html, 'text/html');
+
+	const workEmailInput = doc.querySelector("#WorkEmail");
+	const personalEmailInput = doc.querySelector("#PersonalEmail");
+	const selectElement = doc.getElementById('LkpPrimaryEmailTypeId');
+
+	const work_email = workEmailInput ? workEmailInput.value : "";
+	const personal_email = personalEmailInput ? personalEmailInput.value : "";
+	const primary_email_type = selectElement ? selectElement.options[selectElement.selectedIndex].text : "";
+
+
+	return {
+		work_email,
+		personal_email,
+		primary_email_type
+	}
+
+}
+
+async function get_phone(ee_id) {
+	const html_var = await get_call('https://' + document.domain + '/employee/Profile/Phone?empId=' + ee_id);
+
+	const eventsData = parse_phone_htmldata(html_var);
+	return eventsData;
+}
+async function get_email(ee_id) {
+	const html_var = await get_call('https://' + document.domain + '/employee/Profile/Email?empId=' + ee_id);
+
+	const eventsData = parse_email_htmldata(html_var);
+	return eventsData;
+}
+
+
+
+
 async function get_ee_job(ee_id) {
 	const ee_res = [];
 	var datasheet = await get_datasheet(ee_id);
+	var ee_email = await get_email(ee_id);
+	var ee_phone = await get_phone(ee_id);
+
 	var ee_depts = [];
 	var ee_info = [];
 	var ee_address = [];
@@ -246,6 +320,8 @@ async function get_ee_job(ee_id) {
 		EE_INFO: ee_info,
 		EE_DEPT: ee_depts,
 		EE_ADDRESS: ee_address,
+		EE_EMAIL: ee_email,
+		EE_PHONE: ee_phone
 	};
 	ee_res.push(result);
 	return ee_res
