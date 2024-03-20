@@ -1,4 +1,4 @@
-javascript: const res_el = document.getElementById("myres");
+const res_el = document.getElementById("myres");
 const jsvar = res_el.value;
 const jsonData = JSON.parse(jsvar)[0];
 
@@ -7,6 +7,12 @@ const transformedData = Object.keys(jsonData).map(empId => {
   return { [empId]: EEINFO };
 });
 
-const resultString = JSON.stringify(transformedData);
+var textContent = JSON.stringify(transformedData);
 
-return (resultString )
+const textarea = document.createElement('textarea');
+textarea.id = "myjson";
+textarea.value = textContent;
+document.body.appendChild(textarea);
+var sameElement = document.getElementById("myjson");
+console.log(sameElement);
+console.log("Length of textContent:", sameElement.value.length);
