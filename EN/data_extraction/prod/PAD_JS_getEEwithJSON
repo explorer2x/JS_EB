@@ -1,0 +1,12 @@
+javascript: const res_el = document.getElementById("myres");
+const jsvar = res_el.value;
+const jsonData = JSON.parse(jsvar)[0];
+
+const transformedData = Object.keys(jsonData).map(empId => {
+  const { EEINFO } = jsonData[empId];
+  return { [empId]: EEINFO };
+});
+
+const resultString = JSON.stringify(transformedData);
+
+return (resultString )
