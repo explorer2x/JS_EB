@@ -1,19 +1,26 @@
-javascript: const res_el = document.getElementById("myres");
+const res_el = document.getElementById("myres");
 const jsvar = res_el.value;
-const jsonData = JSON.parse(jsvar)[0]; 
+const jsonData = JSON.parse(jsvar)[0];
 
 // Initialize an array to hold all "Wall" entries
 let combinedWalls = [];
 
 // Iterate over each employee ID in the jsonData
 Object.keys(jsonData).forEach(empId => {
-    // Access the "Wall" array for the current employee
-    let wallEntries = jsonData[empId].Wall;
-    
-    // Concatenate the current "Wall" entries to the combinedWalls array
-    combinedWalls = combinedWalls.concat(wallEntries);
+	// Access the "Wall" array for the current employee
+	let wallEntries = jsonData[empId].Wall;
+
+	// Concatenate the current "Wall" entries to the combinedWalls array
+	combinedWalls = combinedWalls.concat(wallEntries);
 });
 
 // Convert the combinedWalls array to a JSON string
-let result = JSON.stringify(combinedWalls);
-return (result)
+
+const textContent = JSON.stringify(combinedWalls);
+const textarea = document.createElement('textarea');
+textarea.id = "mywall";
+textarea.value = textContent;
+document.body.appendChild(textarea);
+var sameElement = document.getElementById("mywall");
+console.log(sameElement);
+console.log("Length of textContent:", sameElement.value.length);
