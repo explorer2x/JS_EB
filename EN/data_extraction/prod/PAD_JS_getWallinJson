@@ -1,4 +1,4 @@
-const res_el = document.getElementById("myres");
+javascript: const res_el = document.getElementById("myres");
 const jsvar = res_el.value;
 const jsonData = JSON.parse(jsvar)[0];
 
