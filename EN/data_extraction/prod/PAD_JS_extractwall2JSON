@@ -231,8 +231,8 @@ function parse_phone_htmldata(html) {
 
 	const tableRows = doc.querySelectorAll(".table.table-striped tbody .en-list-item");
 
-	let work_phone = "",
-		personal_phone = "";
+	let Work_Phone = "",
+		Personal_Phone = "";
 
 	Array.from(tableRows).forEach(row => {
 		const typeCell = row.querySelector("td:nth-child(2)");
@@ -242,17 +242,18 @@ function parse_phone_htmldata(html) {
 		const number = numberCell ? numberCell.textContent.trim() : "";
 
 		if (type.includes("work")) {
-			work_phone = number;
+			Work_Phone = number;
 		} else if (type.includes("personal")) {
-			personal_phone = number;
+			Personal_Phone = number;
 		}
 
 	});
 
-	return {
-		work_phone,
-		personal_phone
-	};
+
+    return {
+        "Work Phone": Work_Phone,
+        "Personal Phone": Personal_Phone
+    }
 }
 
 
@@ -265,15 +266,15 @@ function parse_email_htmldata(html) {
 	const personalEmailInput = doc.querySelector("#PersonalEmail");
 	const selectElement = doc.getElementById('LkpPrimaryEmailTypeId');
 
-	const work_email = workEmailInput ? workEmailInput.value : "";
-	const personal_email = personalEmailInput ? personalEmailInput.value : "";
-	const primary_email_type = selectElement ? selectElement.options[selectElement.selectedIndex].text : "";
+	const Work_Email = workEmailInput ? workEmailInput.value : "";
+	const Personal_Email = personalEmailInput ? personalEmailInput.value : "";
+	const Primary_Email_type = selectElement ? selectElement.options[selectElement.selectedIndex].text : "";
 
 
 	return {
-		work_email,
-		personal_email,
-		primary_email_type
+		"Work Email": Work_Email,
+		"Personal Email": Personal_Email,
+		"Primary Email Type": Primary_Email_type
 	}
 
 }
