@@ -296,7 +296,7 @@ function parse_benefit_htmldata(html) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(html, 'text/html');
 
-	const tgt_title = ['Enrolled Plans', 'Dependents', 'Declined Coverage'];
+	const tgt_title = ['Enrolled Plans', 'Dependents', 'Declined Coverage','Cafeteria Plans','Ended Coverage'];
 	const allPageTags = doc.getElementsByTagName("h3");
 	let results = {};
 
