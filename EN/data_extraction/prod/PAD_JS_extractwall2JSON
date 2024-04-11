@@ -296,7 +296,7 @@ function parse_benefit_htmldata(html) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(html, 'text/html');
 
-	const tgt_title = ['Enrolled Plans', 'Dependents', 'Declined Coverage','Cafeteria Plans','Ended Coverage'];
+	const tgt_title = ['Enrolled Plans', 'Dependents', 'Declined Coverage', 'Cafeteria Plans', 'Ended Coverage'];
 	const allPageTags = doc.getElementsByTagName("h3");
 	let results = {};
 
@@ -385,6 +385,9 @@ async function get_ee_job(ee_id) {
 	var ee_depts = [];
 	var ee_info = [];
 	var ee_address = [];
+	var ee_CafeEnrollments = [];
+	var ee_Enrollments = [];
+	var ee_EnrollmentChanges = [];
 
 	if (datasheet) {
 		if (datasheet.EmployeeData && datasheet.EmployeeData.Table) {
@@ -396,6 +399,15 @@ async function get_ee_job(ee_id) {
 		if (datasheet.EmployeeAddresses && datasheet.EmployeeAddresses.Table) {
 			var ee_address = datasheet.EmployeeAddresses.Table;
 		}
+		if (datasheet.Enrollments && datasheet.Enrollments) {
+			var ee_Enrollments = datasheet.Enrollments;
+		}
+		if (datasheet.EnrollmentChanges && datasheet.EnrollmentChanges) {
+			var ee_EnrollmentChanges = datasheet.EnrollmentChanges;
+		}
+		if (datasheet.CafeEnrollments && datasheet.CafeEnrollments) {
+			var ee_CafeEnrollments = datasheet.CafeEnrollments;
+		}
 	} else {
 		console.error("Datasheet data not found");
 	}
@@ -406,6 +418,9 @@ async function get_ee_job(ee_id) {
 		EE_ADDRESS: ee_address,
 		EE_EMAIL: ee_email,
 		EE_PHONE: ee_phone,
+		EE_CAFE: ee_CafeEnrollments,
+		EE_ENR: ee_Enrollments,
+		EE_ENCHANGE: ee_EnrollmentChanges,
 		EE_BENEFIT: ee_benefit,
 		EE_TIMELINE: ee_timeline
 	};
