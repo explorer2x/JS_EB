@@ -1,23 +1,26 @@
-const jsonstr = ``;
-
-var jsonobj = JSON.parse(jsonstr);
+javascript:
 
 function evaluateKey(key) {
-	if (key.endsWith("()")) {
-		// Remove the parentheses to get the function name
-		const functionName = key.slice(0, -2);
-		// Check if such a function exists and is callable
-		if (typeof window[functionName] === "function") {
-			return window[functionName](); // Execute the function
+		if (key.endsWith("()")) {
+			const functionName = key.slice(0, -2);
+			if (typeof window[functionName] === "function") {
+				return window[functionName]();
+			}
 		}
+		return key;
 	}
-	return key; // Return the key as is if not a function call
-}
+
+function SelectOptionByText(selectElement, text, Layer) {
 
 
-function SelectOptionByText(selectElement, text,Layer) {
-	current_doc = eval(Layer);
-	
+
+	if (Layer) {
+		var current_doc = eval(Layer);
+	}else{
+	    var current_doc = document;
+	    
+	}
+
 	selectElement = current_doc.querySelector(selectElement);
 
 	if (!selectElement) {
@@ -33,13 +36,17 @@ function SelectOptionByText(selectElement, text,Layer) {
 	}
 }
 
-function InputValue(inputElement_selector, val,Layer) {
+function InputValue(inputElement_selector, val, Layer) {
 
-	current_doc = eval(Layer);
-	console.log(Layer,current_doc);
-	
-	
-    inputElement =current_doc.querySelector(inputElement_selector);
+
+	if (Layer) {
+		var current_doc = eval(Layer);
+	}else{
+	    var current_doc = document;
+	    
+	}
+
+	inputElement = current_doc.querySelector(inputElement_selector);
 	if (!inputElement) {
 		console.error("InputValue element not found");
 		return;
@@ -54,38 +61,39 @@ function InputValue(inputElement_selector, val,Layer) {
 
 }
 
-function SelectRadioButton(RadioElement_selector, val,Layer) {
-	current_doc = eval(Layer);
+function SelectRadioButton(RadioElement_selector, val, Layer) {
+
+	if (Layer) {
+		var current_doc = eval(Layer);
+	}else{
+	    var current_doc = document;
+	}
 
 	RadioElement = current_doc.querySelector(RadioElement_selector);
-	
+
 	if (!RadioElement) {
 		console.error("InputValue element not found");
 		return;
 	}
-	if (val==true){
-	RadioElement.click()};
+	if (val == true) {
+		RadioElement.click()
+	};
 }
 
 function SelectCheckBox(CheckBoxElement_selector, val) {}
 
 function ClickButton(ButtonElement_selector) {}
 
-
 function extractNameFromCancellationNotice() {
-	// Get the first <td> with colspan="2" in the table with class 'borderlessTable'
 	var targetTd = document.getElementsByName('Web Page')[0].contentWindow.document.querySelector('.borderlessTable');
 	if (targetTd) {
-		// Define the regular expression to match the pattern "To cancel {Name},"
-		// This regex looks for 'To cancel ', then captures anything until it hits a comma or " and family"
 		var regex = /To cancel (.*?)(?:,| and family)/;
-		var text = targetTd.textContent; // Get the text content of the td element
-		var match = regex.exec(text); // Execute the regex on the text
+		var text = targetTd.textContent;
+		var match = regex.exec(text);
 
 		if (match && match[1]) {
-			// If a match is found and has the expected group (name)
-			console.log('Extracted Name:', match[1].trim()); // Trim any leading/trailing whitespace
-			return match[1].trim(); // Return the extracted name
+			console.log('Extracted Name:', match[1].trim());
+			return match[1].trim();
 		} else {
 			console.log('No name matching the pattern was found.');
 			return null;
@@ -96,41 +104,42 @@ function extractNameFromCancellationNotice() {
 	}
 }
 
-function if_dept() {
-	// Get the first table with the class 'details'
-	var firstTable = document.querySelector('#launchpad > div.centerdetails1.modify > div > div > div.roundedtl > div.float_left > table');
+function extractEENameFromAddDependentPage() {
+	var fullString = document.getElementsByName('Web Page')[0].contentWindow.document.querySelector("#portlet > div:nth-child(1) > h2").textContent.trim();
+	if (fullString.includes('ID#')) {
+		var name = fullString.split(' ID#')[0];
+		return name;
+	} else {
+		return null;
+	}
+}
 
-	// Check if the table exists
+function if_dept() {
+	var firstTable = document.querySelector('#launchpad > div.centerdetails1.modify > div > div > div.roundedtl > div.float_left > table');
 	if (firstTable) {
 		var rows = firstTable.getElementsByTagName('tr');
 		var hasDependentID = false;
 
-		// Loop through each row to check if the key contains "Dependent ID"
 		for (var i = 0; i < rows.length; i++) {
-			var key = rows[i].cells[0].innerText.trim(); // Get the text and trim any extra white space
+			var key = rows[i].cells[0].innerText.trim();
 			if (key.includes("Dependent ID")) {
 				hasDependentID = true;
-				break; // Stop searching once "Dependent ID" is found
+				break;
 			}
 		}
-		return hasDependentID
-		// Log whether "Dependent ID" is found
+		return hasDependentID;
 		console.log('Does the first table contain "Dependent ID"?', hasDependentID);
 	} else {
-		return hasDependentID
-		console.log('No table with class \'details\' was found.');
+		return hasDependentID;
+		console.log('No table with class "details" was found.');
 	}
 }
-
-
 
 function get_current_page(jsonobj) {
 	var current_page = null;
 	var current_page_Fields = null;
 	for (let i = 0; i < jsonobj.length; i++) {
 		const page = jsonobj[i];
-		console.log(page);
-		// Flag to indicate whether to break the outer loop
 
 		let breakOuterLoop = true;
 
@@ -146,51 +155,52 @@ function get_current_page(jsonobj) {
 
 			if (indicatorLayer) {
 				var current_doc = eval(indicatorLayer);
-				if (current_doc == null) {
-					var current_doc = document
-				}
-				// Now you can use `layer` as a base for further DOM queries
 			} else {
-				var current_doc = document
+				var current_doc = document;
+
 			}
 
-
-
-			console.log("page.PageIndicator[j]", "|", evaluateKey(indicatorSelector), "|", indicatorValue, "|", indicator.Type)
+			console.log("page.PageIndicator[j]", "|", evaluateKey(indicatorSelector), "|", indicatorValue, "|", indicator.Type);
 
 			if (typeof(indicatorSelector) == 'boolean') {
 				console.log("here is boolean line", "|", indicatorSelector, "|", indicatorValue, "|", indicator.Type);
 				if (indicatorSelector == indicatorValue) {
-					indicator_Match = true
+					indicator_Match = true;
 				}
 			} else if (indicatorSelector.startsWith("#") || indicatorSelector.startsWith("[")) {
 
 				console.log('indicatorSelector.startsWith("# or [")');
 
 				if (current_doc.querySelector(indicatorSelector) == null) {
-					console.log('if selector is null:', current_doc.querySelector(indicatorSelector) == null)
-					indicator_Match = false
+					console.log('if selector is null:', current_doc.querySelector(indicatorSelector) == null);
+					indicator_Match = false;
 				} else {
 					if (indicator.Type === 'trimValue') {
 
-						indicator_ElementOnPage = current_doc.querySelector(indicatorSelector)
+						indicator_ElementOnPage = current_doc.querySelector(indicatorSelector);
 
 						indicator_valueOnPage = indicator_ElementOnPage.textContent.trim();
-						console.log("trimValue here is indicator_valueOnPage:", indicator_valueOnPage, "   ", "indicatorValue: ", indicatorValue, "      ", indicator_valueOnPage == indicatorValue)
+						console.log("trimValue here is indicator_valueOnPage:", indicator_valueOnPage, "   ", "indicatorValue: ", indicatorValue, "      ", indicator_valueOnPage == indicatorValue);
 						if (indicator_valueOnPage == indicatorValue) {
 							indicator_Match = true;
 							console.log(indicator_Match);
 						}
 					} else if (indicator.Type === 'Exists') {
 
-						console.log("Exists here is indicatorSelector:", indicatorSelector, "   ", current_doc.querySelector(indicatorSelector))
+						console.log("Exists here is indicatorSelector:", indicatorSelector, "   ", current_doc.querySelector(indicatorSelector));
 						if (current_doc.querySelector(indicatorSelector) != null) {
+							indicator_Match = true;
+							console.log(indicator_Match);
+						}
+					} else if (indicator.Type === 'Visible') {
+						console.log("Visible here is indicatorSelector:", indicatorSelector, "   ", current_doc.querySelector(indicatorSelector).type);
+						if (current_doc.querySelector(indicatorSelector).type != 'hidden') {
 							indicator_Match = true;
 							console.log(indicator_Match);
 						}
 					} else if (indicator.Type === 'Value') {
 						indicator_valueOnPage = current_doc.querySelector(indicatorSelector).value;
-						console.log("here is indicator_valueOnPage:", indicator_valueOnPage, indicatorValue)
+						console.log("here is indicator_valueOnPage:", indicator_valueOnPage, indicatorValue);
 
 						if (indicator_valueOnPage == indicatorValue) {
 							indicator_Match = true;
@@ -201,7 +211,7 @@ function get_current_page(jsonobj) {
 				if (indicator.Type === 'Value') {
 
 					indicator_valueOnPage = evaluateKey(indicatorSelector);
-					console.log("here is indicator_valueOnPage:", indicator_valueOnPage, indicatorValue)
+					console.log("here is indicator_valueOnPage:", indicator_valueOnPage, indicatorValue);
 
 					if (indicator_valueOnPage == indicatorValue) {
 						indicator_Match = true;
@@ -210,13 +220,11 @@ function get_current_page(jsonobj) {
 
 			}
 
-			// Check if the indicator's Value matches the target value
 			if (indicator_Match == false) {
 				breakOuterLoop = false;
 				console.log("Page indicator failed to found, breaking current page's indicator's loop.", j);
-				break; // move to next page loop, stop check current page indicator
+				break;
 			} else {
-				// breakOuterLoop = true;
 				console.log("indicator_Match： ", indicator_Match);
 			}
 		}
@@ -225,40 +233,74 @@ function get_current_page(jsonobj) {
 			var current_page = page.PageName;
 			var current_page_Fields = page.Fields;
 			break;
-			//console.log("current_page： ", page.PageName);
-		} //else{continue}
+		}
 
 	}
-	return [current_page, current_page_Fields]
+	return [current_page, current_page_Fields];
 
 }
 
 function enter_per_JSON(Fields) {
 	Fields.forEach(field => {
 		if (field.FieldsType === "Input") {
-			InputValue(field.Selector, field.Value,field.Layer);
+			InputValue(field.Selector, field.Value, field.Layer);
 			console.log(`Input set for ${field.Selector}, value is ${field.Value}`);
 		} else if (field.FieldsType === "Select") {
-			SelectOptionByText(field.Selector, field.Value,field.Layer);
+			SelectOptionByText(field.Selector, field.Value, field.Layer);
 			console.log(`Selection made for ${field.Selector}, value is ${field.Value}`);
 		} else if (field.FieldsType === "RadioButton") {
-			SelectRadioButton(field.Selector, field.Value,field.Layer);
+			SelectRadioButton(field.Selector, field.Value, field.Layer);
 			console.log(`RadioButton value made for ${field.Selector}, value is ${field.Value}`);
 		} else if (field.FieldsType === "CheckBox") {
-			InputValue(field.Selector, field.Value,field.Layer);
+			InputValue(field.Selector, field.Value, field.Layer);
 			console.log(`CheckBox value made for ${field.Selector}, value is ${field.Value}`);
 		} else if (field.FieldsType === "Button") {
-			InputValue(field.Selector, field.Value,field.Layer);
+			InputValue(field.Selector, field.Value, field.Layer);
 			console.log(`CheckBox value made for ${field.Selector}, value is ${field.Value}`);
 		}
-
 	});
 }
 
+async function get_clipboard() {
+	window.focus();
+	document.body.focus();
+	const clipboardText = await navigator.clipboard.readText();
+	return (clipboardText);
+}
 
-const page_res = get_current_page(jsonobj);
+async function write_clipboard(jsonObject) {
+	window.focus();
+	document.body.focus();
+	let newClipboardString = JSON.stringify(jsonObject);
+	await navigator.clipboard.writeText(newClipboardString);
+}
 
-console.log("Current Page: ", page_res[0], " Page Field: ", page_res[1])
+async function BCBSILjob() {
+	var jsonstr = await get_clipboard();
+	console.log(jsonstr);
+	var jsonobj = JSON.parse(jsonstr);
+	const page_res = get_current_page(jsonobj[0]['JSON']);
+	console.log("Current Page: ", page_res[0], " Page Field: ", page_res[1]);
 
+	if (page_res[1] == null) {
+		alert("This page not automated")
+	} else {
+		enter_per_JSON(page_res[1]);
+	}
+}
 
-enter_per_JSON(page_res[1])
+async function testjob() {
+	var jsonstr = await get_clipboard();
+	console.log(jsonstr);
+	var jsonobj = JSON.parse(jsonstr);
+
+	jsonobj[0]['Domain'] = "www.bcbsil.com";
+	await write_clipboard(jsonobj);
+
+}
+
+function MainJob() {
+	BCBSILjob();
+}
+
+MainJob()
